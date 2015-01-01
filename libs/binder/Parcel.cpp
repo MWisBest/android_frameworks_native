@@ -700,10 +700,10 @@ status_t Parcel::writeString8(const String8& str)
 
 status_t Parcel::writeString16(const String16& str)
 {
-    return writeString16((uint16_t*)str.string(), str.size());
+    return writeString16(str.string(), str.size());
 }
 
-status_t Parcel::writeString16(const uint16_t* str, size_t len)
+status_t Parcel::writeString16(const char16_t* str, size_t len)
 {
     if (str == NULL) return writeInt32(-1);
 
@@ -1452,7 +1452,7 @@ void Parcel::ipcSetDataReference(const uint8_t* data, size_t dataSize,
     for (size_t i = 0; i < mObjectsSize; i++) {
         binder_size_t offset = mObjects[i];
         if (offset < minOffset) {
-            ALOGE("%s: bad object offset %" PRIu64 " < %" PRIu64 "\n",
+            ALOGE("%s: bad object offset %"PRIu64" < %"PRIu64"\n",
                   __func__, (uint64_t)offset, (uint64_t)minOffset);
             mObjectsSize = 0;
             break;
