@@ -714,6 +714,13 @@ sp<CpuConsumer> ScreenshotClient::getCpuConsumer() const {
     return mCpuConsumer;
 }
 
+#ifdef OMAP_TUNA
+status_t ScreenshotClient::update() {
+    sp<ISurfaceComposer> sm(ComposerService::getComposerService());
+    return update(sm->getBuiltInDisplay(0), Rect(), false);
+}
+#endif
+
 status_t ScreenshotClient::update(const sp<IBinder>& display,
         Rect sourceCrop, uint32_t reqWidth, uint32_t reqHeight,
         uint32_t minLayerZ, uint32_t maxLayerZ,
