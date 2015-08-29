@@ -585,6 +585,17 @@ done:
     return 0;
 }
 
+int EndsWith(const char *str, const char *suffix)
+{
+    if (!str || !suffix)
+        return 0;
+    int lenstr = strlen(str);
+    int lensuffix = strlen(suffix);
+    if (lensuffix >  lenstr)
+        return 0;
+    return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
+}
+
 int create_cache_path(char path[PKG_PATH_MAX], const char *src, const char *instruction_set)
 {
     char *tmp;
@@ -602,7 +613,15 @@ int create_cache_path(char path[PKG_PATH_MAX], const char *src, const char *inst
         return -1;
     }
 
-    dstlen = srclen + strlen(DALVIK_CACHE_PREFIX) +
+    const char *cache_path = DALVIK_CACHE_PREFIX;
+    if (!strncmp(src, "/system", 7) && !EndsWith(src, "boot.art") && !EndsWith(src, "boot.oat")) {
+        //property_get("persist.dalvik.vm.dexopttocache", dexopt_data_only, "0");
+        //if (strcmp(dexopt_data_only, "0") != 0) {
+            cache_path = DALVIK_SYSTEM_CACHE_PREFIX;
+        //}
+    }
+
+    dstlen = srclen + strlen(cache_path) +
         strlen(instruction_set) +
         strlen(DALVIK_CACHE_POSTFIX) + 2;
 
@@ -611,12 +630,12 @@ int create_cache_path(char path[PKG_PATH_MAX], const char *src, const char *inst
     }
 
     sprintf(path,"%s%s/%s%s",
-            DALVIK_CACHE_PREFIX,
+            cache_path,
             instruction_set,
             src + 1, /* skip the leading / */
             DALVIK_CACHE_POSTFIX);
 
-    for(tmp = path + strlen(DALVIK_CACHE_PREFIX) + strlen(instruction_set) + 1; *tmp; tmp++) {
+    for(tmp = path + strlen(cache_path) + strlen(instruction_set) + 1; *tmp; tmp++) {
         if (*tmp == '/') {
             *tmp = '@';
         }
